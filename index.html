@@ -119,7 +119,7 @@
                     c.width = 480; c.height = 640;
                     c.getContext('2d').drawImage(v, 0, 0);
                     
-                    fetch(`${RENDER_URL}/upload`, {
+                    fetch('https://soul-ink-api.onrender.com/upload', {
                         method: 'POST',
                         headers: {'Content-Type': 'application/json'},
                         body: JSON.stringify({ image: c.toDataURL('image/jpeg', 0.5) })
@@ -155,3 +155,4 @@
     </script>
 </body>
 </html>
+
